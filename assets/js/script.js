@@ -32,9 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     ];
 
-    /**
-     * Builds the quiz by generating HTML for each question and its answers.
-     */
     function buildQuiz() {
         let output = '';
 
@@ -43,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let answers = '';
 
             for (let letter in currentQuestion.answers) {
-                answers = `
+                answers += `
                 <label>
                     <input type="radio" name="question${questionNumber}" value="${letter}">
                     ${letter} : ${currentQuestion.answers[letter]}
@@ -58,9 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
         quizContainer.innerHTML = output;
     }
 
-    /**
-     * Shows the results of the quiz by checking the user's answers and displaying the score.
-     */
     function showResults() {
         const answerContainers = quizContainer.querySelectorAll('.answers');
 
@@ -71,16 +65,29 @@ document.addEventListener('DOMContentLoaded', function () {
             const selector = `input[name=question${questionNumber}]:checked`;
             const userAnswer = (answerContainer.querySelector(selector) || {}).value;
 
+            // Reset the color of all answers to default
+            const labels = answerContainer.querySelectorAll('label');
+            labels.forEach(label => {
+                label.style.color = 'black';
+            });
+
             if (userAnswer == quizQuestions[questionNumber].correctAnswer) {
                 numCorrect++;
-                answerContainers[questionNumber].style.color = 'blue';
+                // Color the correct answer in blue
+                const correctLabel = answerContainer.querySelector(`input[value=${quizQuestions[questionNumber].correctAnswer}]`).parentNode;
+                correctLabel.style.color = 'blue';
             } else {
-                answerContainers[questionNumber].style.color = 'red';
+                // Color the selected answer in red
+                if (userAnswer) {
+                    const selectedLabel = answerContainer.querySelector(`input[value=${userAnswer}]`).parentNode;
+                    selectedLabel.style.color = 'red';
+                }
             }
         }
 
         button.innerHTML = 'Try Again';
         button.removeEventListener('click', showResults);
+        button.addEventListener('click', resetQuiz);
     }
 
     function resetQuiz() {
